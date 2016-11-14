@@ -31,7 +31,7 @@ $cmd .= "\x00"; #getVersion
 
 print COM $cmd;
 
-while(<COM>) {
+while(sysread COM,$a,1) {
    print Data::Dumper($_);
 }
 
