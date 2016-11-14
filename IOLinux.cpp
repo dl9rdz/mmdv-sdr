@@ -23,6 +23,7 @@
 #if defined(LINUX_SDR)
 #include <string>
 #include <iostream>
+#include <stdio.h>
 
 const uint16_t DC_OFFSET = 2048U;
 
@@ -43,16 +44,14 @@ void CIO::startInt()
   signal("LED",1);
 }
 
-#if 0
 void CIO::deliver(uint16_t count, uint16_t samples[])
 {
 	int i;
 	for(i=0; i<count; i++) {
-	   m_rxBuffer.put(sample, MARK_NONE);
+	   m_rxBuffer.put(samples[i], MARK_NONE);
            m_rssiBuffer.put(0U);
         }
 }
-#endif
 
 #if 0
 void CIO::interrupt(uint8_t source)

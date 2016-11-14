@@ -41,6 +41,7 @@ public:
   void setMode();
   
   void interrupt(uint8_t source);
+  void deliver(uint16_t count, uint16_t samples[]);
 
   void setParameters(bool rxInvert, bool txInvert, bool pttInvert, uint8_t rxLevel, uint8_t cwIdTXLevel, uint8_t dstarTXLevel, uint8_t dmrTXLevel, uint8_t ysfTXLevel, uint8_t p25TXLevel);
 

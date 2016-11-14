@@ -26,6 +26,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <poll.h>
 
 
 // Global variables
@@ -88,7 +89,8 @@ void setup()
     close(serialfd); exit(1);
   }
   unlink("/tmp/mmdvm-tty");
-  symlink(p, "/tmp/mmdvm-tty");  
+  int res = symlink(p, "/tmp/mmdvm-tty");
+  if(res) perror("symlink");
   serial.start();
 
   // prepare stdin
@@ -96,14 +98,14 @@ void setup()
   /* Save the current flags */
   int flags = fcntl(fd, F_GETFL, 0);
   if (flags == -1)
-      return 0;
+      return;
 
   int blocking = 0;
   if (blocking)
       flags &= ~O_NONBLOCK;
   else
       flags |= O_NONBLOCK;
-  int res = fcntl(fd, F_SETFL, flags);
+  res = fcntl(fd, F_SETFL, flags);
 }
 
 #define READSIZE 256
@@ -111,7 +113,7 @@ bool handleinput()
 {
   int r;
   uint8_t buf[READSIZE];
-  struct pollfd fds[]= { {STDIO_FILENO, POLLIN } };
+  struct pollfd fds[]= { {STDIN_FILENO, POLLIN } };
   r = poll(fds, 1, 0);
   if(r<0) { perror("poll failed\n"); return false; }
   if(fds[0].revents & POLLHUP) {
@@ -120,7 +122,7 @@ bool handleinput()
   }
   if(fds[0].revents & POLLIN) {
     printf("poll: has data! %d\n", fds[0].revents);
-    int res = read(STDIO_FILENO, buf, READSIZE);
+    int res = read(STDIN_FILENO, buf, READSIZE);
     if(res>0) {
        int i;
        for(i=0; i<res; i+=4) { 
@@ -130,8 +132,8 @@ bool handleinput()
 	    if(in<-1) in=-1;
 	    if(in>1) in=1;
 	    uint16_t sample = (in+1.0)*2048;
-            m_rxBuffer.put(sample, MARK_NONE);
-       }
+            io.deliver(1, &sample);
+       }
     }
   }
 }
