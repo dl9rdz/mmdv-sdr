@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <poll.h>
+#include <termios.h>
 
 
 // Global variables
@@ -88,9 +89,19 @@ void setup()
     perror("ptsname");
     close(serialfd); exit(1);
   }
+
+  struct termios tp, save;
+  /* Retrieve current terminal settings, turn echoing off */
+  if (tcgetattr(serialfd, &tp) == -1) { perror("tcgetaddr"); exit(1); }
+  tp.c_lflag &= ~ECHO;                /* ECHO off, other bits unchanged */
+  if (tcsetattr(serialfd, TCSAFLUSH, &tp) == -1) { perror("tcsetattr"); exit(1); }
+
   unlink("/tmp/mmdvm-tty");
   int res = symlink(p, "/tmp/mmdvm-tty");
   if(res) perror("symlink");
+
+
+
   serial.start();
 
   // prepare stdin

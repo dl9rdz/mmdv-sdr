@@ -23,6 +23,7 @@
 #include "Config.h"
 #include "Globals.h"
 #include "IO.h"
+#include "stdio.h"
 
 #if defined(WIDE_C4FSK_FILTERS_RX)
 // Generated using rcosdesign(0.2, 4, 5, 'sqrt') in MATLAB
@@ -143,6 +144,7 @@ void CIO::process()
 
     uint8_t blockSize = RX_BLOCK_SIZE;
 
+    printf("Processing block of data...\n");
     for (uint16_t i = 0U; i < RX_BLOCK_SIZE; i++) {
       uint16_t sample;
       m_rxBuffer.get(sample, control[i]);
@@ -180,6 +182,7 @@ void CIO::process()
     if (m_lockout)
       return;
 
+    printf("modem state is %d\n",m_modemState);
     if (m_modemState == STATE_IDLE) {
       if (m_dstarEnable) {
         q15_t GMSKVals[RX_BLOCK_SIZE + 1U];
