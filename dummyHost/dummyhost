@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 use IO::Handle;
+use Data::Dumper;
 
 open(COM, "+<", "/tmp/mmdvm-tty") || die "Cannot open mmdv pty: $!\n";
 
@@ -32,6 +33,6 @@ $cmd .= "\x00"; #getVersion
 print COM $cmd;
 
 while(sysread COM,$a,1) {
-   print Data::Dumper($_);
+   print Dumper($_);
 }
 
