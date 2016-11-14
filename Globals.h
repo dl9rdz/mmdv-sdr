@@ -30,6 +30,10 @@
 #include "misc.h"
 #include <string.h>
 #include <stddef.h>
+#elif defined(LINUX_SDR)
+#include <string.h>
+#include <stddef.h>
+// add things here if required
 #else
 #include <Arduino.h>
 #endif
@@ -39,11 +43,17 @@
 #elif defined(STM32F4XX) || defined(STM32F4) || defined(__MK20DX256__) || defined(__MK66FX1M0__)
 #define  ARM_MATH_CM4
 #else
+#ifdef LINUX_SDR
+#define  MATH_X86
+#else
 #error "Unknown processor type"
+#endif
 #endif
 
 #if defined(STM32F4XX) || defined(STM32F4)
 #include "cmsis.h"
+#elif defined(LINUX_SDR)
+#include "noarm_math.h"
 #else
 #include <arm_math.h>
 #endif

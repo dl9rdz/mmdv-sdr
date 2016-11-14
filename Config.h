@@ -45,7 +45,7 @@
 // #define ARDUINO_DUE_PAPA
 
 // For the ZUM V1.0 and V1.0.1 boards pin layout
-#define ARDUINO_DUE_ZUM_V10
+// #define ARDUINO_DUE_ZUM_V10
 
 // For the SP8NTH board
 // #define ARDUINO_DUE_NTH
@@ -60,6 +60,8 @@
 
 // Use the modem as a serial repeater for Nextion displays
 // #define SERIAL_REPEATER
+
+#define LINUX_SDR
 
 #endif
 

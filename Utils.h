@@ -19,9 +19,12 @@
 #if !defined(UTILS_H)
 #define  UTILS_H
 
+#include "Config.h"
 #if defined(STM32F4XX) || defined(STM32F4)
 #include "stm32f4xx.h"
 #include <cstddef>
+#elif defined(LINUX_SDR)
+#include "noarm_math.h"
 #else
 #include <Arduino.h>
 #endif

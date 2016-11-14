@@ -21,9 +21,12 @@ Boston, MA  02110-1301, USA.
 #if !defined(SERIALRB_H)
 #define  SERIALRB_H
 
+#include "Config.h"
 #if defined(STM32F4XX) || defined(STM32F4)
 #include "stm32f4xx.h"
 #include <cstddef>
+#elif defined(LINUX_SDR)
+#include "noarm_math.h"
 #else
 #include <Arduino.h>
 #endif
