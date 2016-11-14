@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use IO::Handle;
+
+open(COM, "+<", "/tmp/mmdvm-tty") || die "Cannot open mmdv pty: $!\n";
+
+# Send setConfig command
+my $cmd = "\xE0";  # frame start
+$cmd .= "\x10";  # 16=total length (?)
+$cmd .= "\x02"; # setConfig
+$cmd .= "\x00";  #rxInv txIn pptInt ... simplex all off
+$cmd .= "\x0f";  #dstar dmr ysf p25 all enabled
+$cmd .= "\x10";  # txdelay
+$cmd .= "\x00";  # STATE_IDLE
+$cmd .= "\x40";  # rx level
+$cmd .= "\x00";   # cwid tx evel  [5]
+$cmd .= "\x08";  # color code
+$cmd .= "\x08";  # dmr delay
+$cmd .= "\x80";  # oscOffset  128=>0   [8]
+$cmd .= "\x20";  # txlevel dstar
+$cmd .= "\x20";  # txlevel dmr
+$cmd .= "\x20";  # txlevel ysf
+$cmd .= "\x20";  # txlevel p25
+
+print COM $cmd;
+
+$cmd = "\xE0";  # frame start
+$cmd .= "\x03";  # 3=total length (?)
+$cmd .= "\x00"; #getVersion 
+
+print COM $cmd;
+
+while(<COM>) {
+   print Data::Dumper($_);
+}
+
