@@ -22,6 +22,7 @@
 #include "Globals.h"
 #include "YSFRX.h"
 #include "Utils.h"
+#include <stdio.h>
 
 const unsigned int BUFFER_LENGTH = 200U;
 
@@ -31,7 +32,8 @@ const uint32_t PLLMAX = 0x10000U;
 const uint32_t PLLINC = PLLMAX / YSF_RADIO_SYMBOL_LENGTH;
 const uint32_t INC    = PLLINC / 32U;
 
-const uint8_t SYNC_SYMBOL_ERRS = 0U;
+// const uint8_t SYNC_SYMBOL_ERRS = 0U;
+const uint8_t SYNC_SYMBOL_ERRS = 2U;
 
 const uint8_t SYNC_BIT_START_ERRS = 2U;
 const uint8_t SYNC_BIT_RUN_ERRS   = 4U;
@@ -110,6 +112,7 @@ void CYSFRX::processNone(q15_t sample)
 
   // Fuzzy matching of the data sync bit sequence
   if (countBits32((m_symbolBuffer & YSF_SYNC_SYMBOLS_MASK) ^ YSF_SYNC_SYMBOLS) <= SYNC_SYMBOL_ERRS) {
+    printf("SYNC YSF\n");
     q15_t max  = -16000;
     q15_t min  =  16000;
 

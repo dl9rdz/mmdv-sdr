@@ -70,10 +70,11 @@ CCWIdTX cwIdTX;
 CSerialPort serial;
 CIO io;
 
-int serialfd;
+int serialfd=-1;
 
-void setup()
+void resetSerial() 
 {
+  if(serialfd>0) close(serialfd);
   // Prepare socket
   serialfd = posix_openpt(O_RDWR  | O_NOCTTY);
   if(grantpt(serialfd) == -1) {
@@ -93,16 +94,27 @@ void setup()
   struct termios tp, save;
   /* Retrieve current terminal settings, turn echoing off */
   if (tcgetattr(serialfd, &tp) == -1) { perror("tcgetaddr"); exit(1); }
-  tp.c_lflag &= ~ECHO;                /* ECHO off, other bits unchanged */
+  tp.c_lflag &= ~(ICANON|ECHO|IEXTEN|ISIG);                /* ECHO off, other bits unchanged */
+  tp.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+  tp.c_cflag &= ~(CSIZE | PARENB);
+  tp.c_cflag |= CS8;
+  tp.c_oflag &= ~(OPOST);
+  tp.c_cc[VMIN] = 1;
+  tp.c_cc[VTIME] = 0;
+
+
   if (tcsetattr(serialfd, TCSAFLUSH, &tp) == -1) { perror("tcsetattr"); exit(1); }
 
   unlink("/tmp/mmdvm-tty");
   int res = symlink(p, "/tmp/mmdvm-tty");
   if(res) perror("symlink");
 
-
-
   serial.start();
+}
+
+void setup()
+{
+  resetSerial();
 
   // prepare stdin
   int fd = STDIN_FILENO;
@@ -116,7 +128,7 @@ void setup()
       flags &= ~O_NONBLOCK;
   else
       flags |= O_NONBLOCK;
-  res = fcntl(fd, F_SETFL, flags);
+  int res = fcntl(fd, F_SETFL, flags);
 }
 
 #define READSIZE 256
@@ -125,14 +137,14 @@ bool handleinput()
   int r;
   uint8_t buf[READSIZE];
   struct pollfd fds[]= { {STDIN_FILENO, POLLIN } };
-  r = poll(fds, 1, 0);
+  r = poll(fds, 1, 5);
   if(r<0) { perror("poll failed\n"); return false; }
   if(fds[0].revents & POLLHUP) {
-     printf("poll: has hup! %d\n", fds[0].revents);
+     printf("input: poll: has hup! %d\n", fds[0].revents);
      return false;
   }
   if(fds[0].revents & POLLIN) {
-    printf("poll: has data! %d\n", fds[0].revents);
+    //printf("poll: has data! %d\n", fds[0].revents);
     int res = read(STDIN_FILENO, buf, READSIZE);
     if(res>0) {
        int i;

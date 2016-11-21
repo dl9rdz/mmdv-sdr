@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use IO::Handle;
 use Data::Dumper;
+$Data::Dumper::Useqq=1;
+
 
 open(COM, "+<", "/tmp/mmdvm-tty") || die "Cannot open mmdv pty: $!\n";
 
@@ -14,7 +16,7 @@ $cmd .= "\x00";  #rxInv txIn pptInt ... simplex all off
 $cmd .= "\x0f";  #dstar dmr ysf p25 all enabled
 $cmd .= "\x10";  # txdelay
 $cmd .= "\x00";  # STATE_IDLE
-$cmd .= "\x40";  # rx level
+$cmd .= "\x80";  # rx level
 $cmd .= "\x00";   # cwid tx evel  [5]
 $cmd .= "\x08";  # color code
 $cmd .= "\x08";  # dmr delay
@@ -24,15 +26,22 @@ $cmd .= "\x20";  # txlevel dmr
 $cmd .= "\x20";  # txlevel ysf
 $cmd .= "\x20";  # txlevel p25
 
-print COM $cmd;
+# print COM $cmd;
+syswrite COM,$cmd,16;
 
 $cmd = "\xE0";  # frame start
 $cmd .= "\x03";  # 3=total length (?)
-$cmd .= "\x00"; #getVersion 
+$cmd .= "\x01"; #getVersion 
 
-print COM $cmd;
+syswrite COM,$cmd,3;
+$cmd = "\xE0";  # frame start
+$cmd .= "\x03";  # 3=total length (?)
+$cmd .= "\x00"; #getStatus
 
-while(sysread COM,$a,1) {
-   print Dumper($_);
+syswrite COM,$cmd,3;
+
+while(sysread COM,$a,100) {
+# while(<COM>) {
+   print Dumper($a);
 }
 

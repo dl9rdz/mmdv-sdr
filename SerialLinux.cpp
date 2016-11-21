@@ -27,6 +27,7 @@
 #include <unistd.h>
 
 extern int serialfd;
+extern void resetSerial();
 
 void CSerialPort::beginInt(uint8_t n, int speed)
 {
@@ -57,7 +58,7 @@ int CSerialPort::availableInt(uint8_t n)
       if(r<0) { perror("poll failed\n"); return false; }
       if(fds[0].revents & POLLHUP) {
 	printf("poll: has hup! %d\n", fds[0].revents);
-        return false;
+	resetSerial();
       }
       if(fds[0].revents & POLLIN) {
 	printf("poll: has data! %d\n", fds[0].revents);
@@ -91,6 +92,7 @@ void CSerialPort::writeInt(uint8_t n, const uint8_t* data, uint16_t length, bool
   switch (n) {
     case 1U:
       write(serialfd, data, length);
+      //write(serialfd, "\r\n", 2);
       //if (flush)
       //  Serial.flush();
       break;

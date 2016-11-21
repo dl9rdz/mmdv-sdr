@@ -23,6 +23,7 @@
 #include "Globals.h"
 
 #include "SerialPort.h"
+#include <stdio.h>
 
 const uint8_t MMDVM_FRAME_START  = 0xE0U;
 
@@ -204,6 +205,7 @@ void CSerialPort::getVersion()
 
 uint8_t CSerialPort::setConfig(const uint8_t* data, uint8_t length)
 {
+  printf("1\n");
   if (length < 13U)
     return 4U;
 
@@ -216,29 +218,35 @@ uint8_t CSerialPort::setConfig(const uint8_t* data, uint8_t length)
   bool dmrEnable   = (data[1U] & 0x02U) == 0x02U;
   bool ysfEnable   = (data[1U] & 0x04U) == 0x04U;
   bool p25Enable   = (data[1U] & 0x08U) == 0x08U;
+  printf("2\n");
 
   uint8_t txDelay = data[2U];
   if (txDelay > 50U)
     return 4U;
+  printf("3\n");
 
   MMDVM_STATE modemState = MMDVM_STATE(data[3U]);
 
   if (modemState != STATE_IDLE && modemState != STATE_DSTAR && modemState != STATE_DMR && modemState != STATE_YSF && modemState != STATE_P25 && modemState != STATE_DSTARCAL && modemState != STATE_DMRCAL)
     return 4U;
+  printf("4\n");
   if (modemState == STATE_DSTAR && !dstarEnable)
     return 4U;
   if (modemState == STATE_DMR && !dmrEnable)
     return 4U;
+  printf("5\n");
   if (modemState == STATE_YSF && !ysfEnable)
     return 4U;
   if (modemState == STATE_P25 && !p25Enable)
     return 4U;
+  printf("7\n");
 
   uint8_t rxLevel = data[4U];
 
   uint8_t colorCode = data[6U];
   if (colorCode > 15U)
     return 4U;
+  printf("9\n");
 
   uint8_t dmrDelay = data[7U];
 
@@ -259,6 +267,7 @@ uint8_t CSerialPort::setConfig(const uint8_t* data, uint8_t length)
   uint8_t dmrTXLevel   = data[10U];
   uint8_t ysfTXLevel   = data[11U];
   uint8_t p25TXLevel   = data[12U];
+  printf("10\n");
 
   m_modemState  = modemState;
 
